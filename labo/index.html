@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Labo · Cuaderno de campo · Igema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:wght@900&display=swap">
+<link rel="stylesheet" href="/assets/gallery.css">
+</head>
+<body>
+
+<div class="r">
+  <a class="back" href="/">← Todos los campos</a>
+  <h1>Labo</h1>
+  <p class="sub">Laboratorio · Igema</p>
+
+  <main class="g" id="galeria"></main>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Visor de fotos" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Cerrar">✕</button>
+  <button class="lb-prev"  id="lbPrev"  aria-label="Foto anterior">‹</button>
+  <button class="lb-next"  id="lbNext"  aria-label="Foto siguiente">›</button>
+  <figure class="lb-frame">
+    <img class="lb-img" id="lbImg" alt="">
+    <figcaption class="lb-cap"><span id="lbText"></span><span class="lb-count" id="lbCount"></span></figcaption>
+  </figure>
+</div>
+
+<script src="/assets/gallery.js"></script>
+<script>
+/* ============================================================
+   LISTA DE FOTOS de Labo (carpeta: /fotos_labo/ en la raíz del sitio)
+   ⚠️ Esto es una plantilla de ejemplo: reemplaza estos nombres por
+   los archivos reales que subas a /fotos_labo/.
+   ============================================================ */
+IgemaGallery.init({
+  carpeta: '/fotos_labo/',
+  fotos: [
+    ['fotos_labo_1.jpg', 'foto 01'],
+    ['fotos_labo_2.jpg', 'foto 02'],
+    ['fotos_labo_3.jpg', 'foto 03']
+  ]
+});
+</script>
+</body>
+</html>

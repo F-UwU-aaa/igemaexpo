@@ -1,0 +1,162 @@
+*{box-sizing:border-box}
+body{margin:0}
+h1,p{margin:0}
+
+:root{
+  --bg:#F1E8D4;
+  --line:rgba(11,79,108,.14);
+  --ink:#1C1210;
+  --red:#8A1A1A;
+  --blue:#0B4F6C;
+  --shadow:rgba(28,18,16,.25);
+  --shadow-hover:rgba(28,18,16,.35);
+}
+
+/* ---------- Hoja de cuaderno ---------- */
+.r{
+  background:var(--bg) repeating-linear-gradient(0deg,transparent 0 31px,var(--line) 31px 32px);
+  color:var(--ink);
+  font-family:'Caveat',cursive;
+  padding:56px 48px 80px;
+  min-height:100vh;
+}
+h1{
+  font:900 clamp(72px,16vw,200px)/.9 'Fraunces',serif;
+  color:var(--red);
+  transform:rotate(-2deg);
+}
+.sub{font-size:30px;color:var(--blue);margin:12px 0 48px}
+.back{
+  display:inline-block;
+  font-size:26px;
+  color:var(--blue);
+  text-decoration:none;
+  margin-bottom:10px;
+}
+.back:hover,.back:focus-visible{text-decoration:underline}
+
+/* ---------- Galería (columnas nativas de CSS: sin JS para repartir fotos) ---------- */
+.g{column-count:2;column-gap:28px}
+@media(min-width:700px){.g{column-count:3}}
+@media(min-width:1000px){.g{column-count:4}}
+
+.t{
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  margin:0 0 34px;
+  background:#fff;
+  padding:12px 12px 6px;
+  box-shadow:0 8px 18px var(--shadow);
+  position:relative;
+  cursor:zoom-in;
+  transition:transform .35s,box-shadow .35s;
+  -webkit-tap-highlight-color:transparent;
+}
+.t:nth-child(odd){transform:rotate(-2.2deg)}
+.t:nth-child(even){transform:rotate(1.8deg)}
+.t:nth-child(3n){transform:rotate(-.6deg)}
+.t:hover,.t:focus-visible{
+  transform:rotate(0) scale(1.07);
+  z-index:3;
+  box-shadow:0 22px 36px var(--shadow-hover);
+  outline:none;
+}
+.t:focus-visible{outline:3px solid var(--blue);outline-offset:4px}
+
+.t img{
+  display:block;
+  width:100%;
+  height:auto;
+  background:linear-gradient(135deg,var(--red),#4A0D10); /* placeholder mientras carga */
+  color:transparent;
+  aspect-ratio:3/2;
+}
+.t img.ok{aspect-ratio:auto}
+.t figcaption{
+  font-size:26px;
+  color:var(--blue);
+  text-align:center;
+  padding-top:4px;
+}
+
+@media(max-width:700px){
+  .r{padding:40px 20px 60px}
+  .sub{font-size:24px}
+  .g{gap:18px}
+  .t{margin-bottom:26px}
+  .t figcaption{font-size:22px}
+}
+
+/* ---------- Visor (lightbox) ---------- */
+.lb{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(20,10,8,.88);
+  backdrop-filter:blur(3px);
+  opacity:0;visibility:hidden;
+  transition:opacity .25s,visibility .25s;
+  padding:16px;
+}
+.lb.open{opacity:1;visibility:visible}
+.lb-frame{
+  position:relative;
+  margin:0;
+  background:#fff;
+  padding:14px 14px 6px;
+  box-shadow:0 30px 70px rgba(0,0,0,.55);
+  transform:scale(.94) rotate(-1deg);
+  transition:transform .3s;
+  max-width:100%;
+}
+.lb.open .lb-frame{transform:scale(1) rotate(0)}
+.lb-img{
+  display:block;
+  width:auto;height:auto;
+  max-width:min(1100px,calc(100vw - 32px - 28px));
+  max-height:calc(100vh - 32px - 20px - 52px);
+  max-height:calc(100dvh - 32px - 20px - 52px);
+  background:#4A0D10;
+  transition:opacity .2s;
+}
+.lb-img.fade{opacity:0}
+.lb-cap{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:26px;color:var(--blue);
+  padding:4px 4px 2px;
+  min-height:46px;
+}
+.lb-count{font-size:22px;color:var(--red)}
+
+.lb button{
+  position:absolute;
+  border:0;cursor:pointer;
+  font:500 34px/1 'Caveat',cursive;
+  color:var(--bg);
+  background:rgba(241,232,212,.12);
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  transition:background .2s,transform .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.lb button:hover,.lb button:focus-visible{background:var(--red);transform:scale(1.08);outline:none}
+.lb-close{top:16px;right:16px}
+.lb-prev{left:16px;top:50%;margin-top:-26px}
+.lb-next{right:16px;top:50%;margin-top:-26px}
+
+@media(max-width:700px){
+  .lb{padding:10px}
+  .lb-prev,.lb-next{top:auto;bottom:14px;margin:0}
+  .lb-prev{left:calc(50% - 64px)}
+  .lb-next{right:calc(50% - 64px)}
+  .lb-close{top:10px;right:10px;width:44px;height:44px}
+  .lb-img{
+    max-width:calc(100vw - 20px - 28px);
+    max-height:calc(100vh - 20px - 20px - 52px - 70px);
+    max-height:calc(100dvh - 20px - 20px - 52px - 70px);
+  }
+}
+body.lb-lock{overflow:hidden}
+
+@media(prefers-reduced-motion:reduce){
+  .t,.lb,.lb-frame,.lb-img{transition:none}
+}
