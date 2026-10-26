@@ -19,41 +19,56 @@
 
 <div class="r">
   <h1>Igema</h1>
-  <p class="sub">Elige un campo para ver su cuaderno de fotos</p>
+  <br><br>
+  <p class="sub">Elige un área que desea Ver</p>
   <main class="campos" id="campos"></main>
 </div>
 
+<script src="/assets/gallery.js"></script>
 <script>
 /* ============================================================
-   LISTA DE CAMPOS
-   Para agregar uno nuevo:
-     1. Crea su carpeta copiando /labo (o /ceredi) como plantilla.
-     2. Sube sus fotos a /fotos_<nombre>/ en la raíz del sitio.
-     3. Agrega una línea aquí: [nombre a mostrar, ruta, foto de tapa].
+   LISTA DE ÁREAS
+   Para agregar una nueva:
+     1. Crea una carpeta /nombre-area/index.html (copia alguna de
+        las que ya existen, como /recreacion, y cambia el título).
+     2. Crea /fotos-nombre-area/ en la raíz y sube las fotos ahí
+        (con cualquier nombre: corré renombrar_fotos.py después).
+     3. Agrega una línea aquí abajo: [título, ruta, carpeta de fotos].
    ============================================================ */
 var CAMPOS = [
-  ['CEREDI', '/ceredi', '/fotos_ceredi/fotos_ceredi_1.jpg'],
-  ['Labo',   '/labo',   '/fotos_labo/fotos_labo_1.jpg']
+  ['Servicios Complementarios',  '/servicios-complementarios',   '/fotos-servicios-complementarios/'],
+  ['Laboratorios y Talleres',    '/labor-talleres',               '/fotos-labor-talleres/'],
+  ['Recreación',                 '/recreacion',                   '/fotos-recreacion/'],
+  ['Repositorios',               '/repositorios',                 '/fotos-repositorios/']
 ];
 
 var cont = document.getElementById('campos');
 CAMPOS.forEach(function (c, i) {
+  var nombre = c[0], ruta = c[1], carpeta = c[2];
+
   var a = document.createElement('a');
   a.className = 't campo';
-  a.href = c[1];
-
-  var im = document.createElement('img');
-  im.src = c[2];
-  im.alt = c[0];
-  im.decoding = 'async';
-  im.loading = i === 0 ? 'eager' : 'lazy';
-  if (i === 0) im.fetchPriority = 'high';
-  im.addEventListener('load', function () { im.classList.add('ok'); });
+  a.href = ruta;
 
   var cap = document.createElement('figcaption');
-  cap.textContent = c[0];
+  cap.textContent = nombre;
 
-  a.appendChild(im);
+  IgemaGallery.primeraFoto(carpeta).then(function (src) {
+    if (src) {
+      var im = document.createElement('img');
+      im.src = src;
+      im.alt = nombre;
+      im.decoding = 'async';
+      im.loading = i < 2 ? 'eager' : 'lazy';
+      im.addEventListener('load', function () { im.classList.add('ok'); });
+      a.insertBefore(im, cap);
+    } else {
+      var ph = document.createElement('div');
+      ph.className = 'ph';
+      a.insertBefore(ph, cap);
+    }
+  });
+
   a.appendChild(cap);
   cont.appendChild(a);
 });

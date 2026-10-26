@@ -1,61 +1,145 @@
 /* ============================================================
-   Galería reutilizable para cada campo (CEREDI, Labo, etc.)
+   Galería reutilizable para cada área (CEREDI, Laboratorios y
+   Talleres, etc.)
 
-   Uso en la página de un campo:
-     IgemaGallery.init({
-       carpeta: '/fotos_ceredi/',
-       fotos: [
-         ['fotos_ceredi_1.jpg', 'foto 01'],
-         ['fotos_ceredi_2.jpg', 'foto 02']
-       ]
-     });
+   Ya NO hace falta escribir la lista de fotos a mano. Cada área
+   solo le dice a la galería su carpeta y su "prefijo" de archivo
+   (el nombre con el que las fotos fueron renombradas por
+   renombrar_fotos.py, ej: fotos-ceredi_1.jpg, fotos-ceredi_2.jpeg...).
 
-   Notas de rendimiento:
-   - El layout usa columnas nativas de CSS (ver gallery.css), así que
-     NO hace falta esperar a que carguen todas las fotos para acomodarlas.
-     La página se pinta al instante.
-   - Las primeras fotos se cargan de inmediato (loading="eager") para que
-     se vea algo rápido apenas entras; el resto usa loading="lazy" y el
-     navegador las pide solo cuando el usuario se acerca haciendo scroll.
-   - En el visor, solo se precargan la foto actual y sus dos vecinas
-     (anterior/siguiente), no toda la carpeta.
+   Uso en la página de un área:
+     IgemaGallery.init({ carpeta: '/fotos-ceredi/' });
+     // el "prefijo" se calcula solo a partir de la carpeta
+     // (fotos-ceredi/ -> fotos-ceredi), así que normalmente ni
+     // hace falta pasarlo.
+
+   Cómo encuentra las fotos (sin manifest.json, sin servidor):
+   El navegador pregunta de a lotes de 10 "¿existe fotos-ceredi_1.jpg?
+   ¿...1.jpeg? ¿...1.png? ¿...1.webp?" etc. con peticiones HEAD (solo
+   encabezados, no baja la foto), en paralelo. Cuando un lote entero de
+   10 números seguidos no encuentra nada, asume que ahí se acabaron las
+   fotos y para de buscar. No importa el orden ni los nombres originales
+   de tus archivos: eso ya lo resuelve renombrar_fotos.py.
+
+   Rendimiento:
+   - Las peticiones HEAD son livianas (sin cuerpo), y se hacen en
+     paralelo por lotes, así que la búsqueda es rápida incluso con
+     muchas fotos.
+   - Una vez encontradas, el layout usa columnas nativas de CSS: no
+     hay que esperar a que carguen todas para acomodarlas.
+   - Las primeras fotos usan loading="eager" (se ven rápido al entrar);
+     el resto usa loading="lazy" (el navegador las pide solo cuando el
+     usuario se acerca haciendo scroll).
+   - El visor (lightbox) solo precarga la foto actual + la anterior y
+     la siguiente, no la carpeta entera.
    ============================================================ */
 window.IgemaGallery = (function () {
 
+  var EXTENSIONES = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  var TAMANO_LOTE = 10;
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function existe(url) {
+    return fetch(url, { method: 'HEAD' })
+      .then(function (res) { return res.ok; })
+      .catch(function () { return false; });
+  }
+
+  // Busca prefijo_1.ext, prefijo_2.ext... en lotes de 10 hasta que un
+  // lote entero no encuentre nada. Devuelve [{src, numero}, ...] en orden.
+  function descubrirFotos(carpeta, prefijo) {
+    var encontradas = {};
+
+    function probarLote(inicio) {
+      var pedidos = [];
+      for (var n = inicio; n < inicio + TAMANO_LOTE; n++) {
+        (function (n) {
+          EXTENSIONES.forEach(function (ext) {
+            var url = carpeta + prefijo + '_' + n + '.' + ext;
+            pedidos.push(existe(url).then(function (ok) {
+              if (ok && !encontradas[n]) encontradas[n] = url;
+            }));
+          });
+        })(n);
+      }
+      return Promise.all(pedidos).then(function () {
+        var huboAlguna = false;
+        for (var n2 = inicio; n2 < inicio + TAMANO_LOTE; n2++) {
+          if (encontradas[n2]) huboAlguna = true;
+        }
+        if (huboAlguna) return probarLote(inicio + TAMANO_LOTE);
+      });
+    }
+
+    return probarLote(1).then(function () {
+      var numeros = Object.keys(encontradas).map(Number).sort(function (a, b) { return a - b; });
+      return numeros.map(function (n) { return { src: encontradas[n], numero: n }; });
+    });
+  }
+
+  function prefijoDeCarpeta(carpeta) {
+    return carpeta.replace(/^\/+|\/+$/g, '');
+  }
+
+  // Devuelve la URL de la primera foto (número 1) de una carpeta, o null
+  // si todavía no hay ninguna. Útil para portadas (ver index.html del hub).
+  function primeraFoto(carpeta, prefijo) {
+    prefijo = prefijo || prefijoDeCarpeta(carpeta);
+    var intentos = EXTENSIONES.map(function (ext) {
+      return carpeta + prefijo + '_1.' + ext;
+    });
+    function intentar(i) {
+      if (i >= intentos.length) return Promise.resolve(null);
+      return existe(intentos[i]).then(function (ok) {
+        return ok ? intentos[i] : intentar(i + 1);
+      });
+    }
+    return intentar(0);
+  }
+
   function init(opts) {
     var carpeta = opts.carpeta;
-    var fotos = opts.fotos || [];
+    var prefijo = opts.prefijo || prefijoDeCarpeta(carpeta);
     var galeria = document.getElementById(opts.contenedor || 'galeria');
     if (!galeria) return;
 
-    var items = [];
+    descubrirFotos(carpeta, prefijo).then(function (fotos) {
+      if (!fotos.length) {
+        galeria.innerHTML = '<p class="vacio">Todavía no hay fotos acá.</p>';
+        galeria.classList.add('listo');
+        return;
+      }
 
-    fotos.forEach(function (f, i) {
-      var fig = document.createElement('figure');
-      fig.className = 't';
-      fig.tabIndex = 0;
-      fig.setAttribute('role', 'button');
-      fig.setAttribute('aria-label', 'Ampliar ' + f[1]);
+      var items = [];
+      fotos.forEach(function (f, i) {
+        var fig = document.createElement('figure');
+        fig.className = 't';
+        fig.tabIndex = 0;
+        fig.setAttribute('role', 'button');
+        var cap = 'foto ' + pad(f.numero);
+        fig.setAttribute('aria-label', 'Ampliar ' + cap);
 
-      var im = document.createElement('img');
-      im.alt = f[1];
-      im.decoding = 'async';
-      im.loading = i < 4 ? 'eager' : 'lazy';
-      if (i === 0) im.fetchPriority = 'high';
-      im.addEventListener('load', function () { im.classList.add('ok'); });
-      im.src = carpeta + f[0];
+        var im = document.createElement('img');
+        im.alt = cap;
+        im.decoding = 'async';
+        im.loading = i < 4 ? 'eager' : 'lazy';
+        if (i === 0) im.fetchPriority = 'high';
+        im.addEventListener('load', function () { im.classList.add('ok'); });
+        im.src = f.src;
 
-      var cap = document.createElement('figcaption');
-      cap.textContent = f[1];
+        var figcap = document.createElement('figcaption');
+        figcap.textContent = cap;
 
-      fig.appendChild(im);
-      fig.appendChild(cap);
-      galeria.appendChild(fig);
-      items.push(fig);
+        fig.appendChild(im);
+        fig.appendChild(figcap);
+        galeria.appendChild(fig);
+        items.push(fig);
+      });
+
+      galeria.classList.add('listo');
+      initLightbox(items);
     });
-
-    galeria.classList.add('listo');
-    initLightbox(items);
   }
 
   function initLightbox(items) {
@@ -135,5 +219,5 @@ window.IgemaGallery = (function () {
     }, { passive: true });
   }
 
-  return { init: init };
+  return { init: init, primeraFoto: primeraFoto };
 })();

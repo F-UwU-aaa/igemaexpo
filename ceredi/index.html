@@ -12,15 +12,13 @@
 <body>
 
 <div class="r">
-  <a class="back" href="/">← Todos los campos</a>
   <h1>CEREDI</h1>
   <p class="sub">Centro de exposiciones · Igema</p>
 
-  <!-- Las fotos se cargan desde la lista de abajo -->
+  <!-- Las fotos se detectan solas desde fotos-ceredi/ -->
   <main class="g" id="galeria"></main>
 </div>
 
-<!-- Visor -->
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Visor de fotos" aria-hidden="true">
   <button class="lb-close" id="lbClose" aria-label="Cerrar">✕</button>
   <button class="lb-prev"  id="lbPrev"  aria-label="Foto anterior">‹</button>
@@ -33,35 +31,7 @@
 
 <script src="/assets/gallery.js"></script>
 <script>
-/* ============================================================
-   LISTA DE FOTOS de CEREDI (carpeta: /fotos_ceredi/ en la raíz del sitio)
-   Para agregar una foto nueva, añade una línea con su nombre.
-   Para cambiar el pie de foto, cambia el texto después de la coma.
-   ============================================================ */
-IgemaGallery.init({
-  carpeta: '/fotos_ceredi/',
-  fotos: [
-    ['fotos_ceredi_1.jpg',    'foto 01'],
-    ['fotos_ceredi_2.jpg',    'foto 02'],
-    ['fotos_ceredi_3.jpeg',   'foto 03'],
-    ['fotos_ceredi_4.jpeg',   'foto 04'],
-    ['fotos_ceredi_5.jpeg',   'foto 05'],
-    ['fotos_ceredi_6.jpeg',   'foto 06'],
-    ['fotos_ceredi_7.jpeg',   'foto 07'],
-    ['fotos_ceredi_8.jpeg',   'foto 08'],
-    ['fotos_ceredi_9.jpeg',   'foto 09'],
-    ['fotos_ceredi_10.jpeg',  'foto 10'],
-    ['fotos_ceredi_11.jpeg',  'foto 11'],
-    ['fotos_ceredi_12.jpeg',  'foto 12'],
-    ['fotos_ceredi_13.jpeg',  'foto 13'],
-    ['fotos_ceredi_14.jpeg',  'foto 14'],
-    ['fotos_ceredi_15.jpeg',  'foto 15'],
-    ['fotos_ceredi_16.jpeg',  'foto 16'],
-    ['fotos_ceredi_17.jpeg',  'foto 17'],
-    ['fotos_ceredi_18.jpeg',  'foto 18'],
-    ['fotos_ceredi_19.jpeg',  'foto 19']
-  ]
-});
+  IgemaGallery.init({ carpeta: '/fotos-ceredi/' });
 </script>
 </body>
 </html>

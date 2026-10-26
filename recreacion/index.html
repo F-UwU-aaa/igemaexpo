@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recreación · Cuaderno de campo · Igema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:wght@900&display=swap">
+<link rel="stylesheet" href="/assets/gallery.css">
+</head>
+<body>
+
+<div class="r">
+  <a class="back" href="/">← Todas las áreas</a>
+  <h1>Recreación</h1>
+  <p class="sub">Igema</p>
+
+  <!-- Las fotos se detectan solas desde fotos-recreacion/ -->
+  <main class="g" id="galeria"></main>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Visor de fotos" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Cerrar">✕</button>
+  <button class="lb-prev"  id="lbPrev"  aria-label="Foto anterior">‹</button>
+  <button class="lb-next"  id="lbNext"  aria-label="Foto siguiente">›</button>
+  <figure class="lb-frame">
+    <img class="lb-img" id="lbImg" alt="">
+    <figcaption class="lb-cap"><span id="lbText"></span><span class="lb-count" id="lbCount"></span></figcaption>
+  </figure>
+</div>
+
+<script src="/assets/gallery.js"></script>
+<script>
+  IgemaGallery.init({ carpeta: '/fotos-recreacion/' });
+</script>
+</body>
+</html>

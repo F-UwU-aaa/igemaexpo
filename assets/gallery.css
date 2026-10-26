@@ -19,11 +19,19 @@ h1,p{margin:0}
   font-family:'Caveat',cursive;
   padding:56px 48px 80px;
   min-height:100vh;
+  overflow-x:hidden; /* el título rotado nunca empuja un scroll lateral */
 }
 h1{
-  font:900 clamp(72px,16vw,200px)/.9 'Fraunces',serif;
+  /* clamp(mínimo, preferido-según-ancho, máximo): así títulos cortos
+     (Igema, CEREDI) se ven grandes, y títulos largos (Servicios
+     Complementarios) se achican solos en vez de salirse de pantalla */
+  font:900 clamp(1.8rem,8vw,170px)/.95 'Fraunces',serif;
   color:var(--red);
   transform:rotate(-2deg);
+  max-width:100%;
+  overflow-wrap:break-word;
+  word-break:break-word;
+  hyphens:auto;
 }
 .sub{font-size:30px;color:var(--blue);margin:12px 0 48px}
 .back{
@@ -77,6 +85,22 @@ h1{
   color:var(--blue);
   text-align:center;
   padding-top:4px;
+}
+
+.vacio{
+  font-size:30px;
+  color:var(--blue);
+  opacity:.8;
+}
+
+/* Tarjeta del hub cuando una carpeta todavía no tiene foto_1:
+   mismo marco blanco y sombra que una foto real, solo que el
+   "hueco de la foto" queda con el degradé de carga en vez de una imagen */
+.campo .ph{
+  display:block;
+  width:100%;
+  aspect-ratio:3/2;
+  background:linear-gradient(135deg,var(--red),#4A0D10);
 }
 
 @media(max-width:700px){
