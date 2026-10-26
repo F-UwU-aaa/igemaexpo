@@ -9,10 +9,22 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:wght@900&display=swap">
 <link rel="stylesheet" href="/assets/gallery.css">
 <style>
-  .campos{column-count:2;column-gap:28px}
-  @media(min-width:700px){.campos{column-count:3}}
+  /* En celular angosto, 1 sola columna (las tarjetas tienen título
+     largo y necesitan ancho); en pantallas más grandes, 2 o 3 */
+  .campos{column-count:1;column-gap:28px}
+  @media(min-width:560px){.campos{column-count:2}}
+  @media(min-width:900px){.campos{column-count:3}}
+
   .campo{display:block;text-decoration:none;color:inherit}
-  .campo figcaption{font-size:30px}
+  .campo figcaption{
+    /* se achica solo según el ancho de pantalla, en vez de un
+       tamaño fijo que no entraba en columnas angostas */
+    font-size:clamp(18px,4.2vw,30px);
+    line-height:1.08;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    hyphens:auto;
+  }
 </style>
 </head>
 <body>
@@ -20,7 +32,7 @@
 <div class="r">
   <h1>Igema</h1>
   <br><br>
-  <p class="sub">Elige un área que desea Ver</p>
+  <p class="sub">Elige un área para ver sus fotos</p>
   <main class="campos" id="campos"></main>
 </div>
 
